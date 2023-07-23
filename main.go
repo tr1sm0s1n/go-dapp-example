@@ -1,0 +1,116 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"math/big"
+	"net/http"
+
+	"github.com/DEMYSTIF/go-dapp-example/lib"
+	"github.com/DEMYSTIF/go-dapp-example/middlewares"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/gin-gonic/gin"
+)
+
+type Certificate struct {
+	ID     string `json:"id" binding:"required"`
+	Name   string `json:"name" binding:"required"`
+	Course string `json:"course" binding:"required"`
+	Grade  string `json:"grade" binding:"required"`
+	Date   string `json:"date" binding:"required"`
+}
+
+func main() {
+	contract := "0x68042D342f4722a74b0C54Cb37ef3A7E8A57905d"
+	printContract := fmt.Sprintf("Contract: %s", contract)
+	fmt.Println(printContract)
+
+	contractAddress := common.HexToAddress(contract)
+	client, err := ethclient.Dial("http://127.0.0.1:8545")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	instance, err := lib.NewCert(contractAddress, client)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router := gin.Default()
+	router.POST("/issue", func(ctx *gin.Context) {
+		issueCertificate(ctx, client, instance)
+	})
+	router.GET(("/fetch/:id"), func(ctx *gin.Context) {
+		fetchCertificate(ctx, instance)
+	})
+	router.GET(("/events"), func(ctx *gin.Context) {
+		getEvents(ctx, contractAddress, client)
+	})
+	router.Run("localhost:8080")
+}
+
+func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *lib.Cert) {
+	var newCertificate Certificate
+
+	if err := ctx.ShouldBind(&newCertificate); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	auth := middlewares.AuthGenerator(client)
+	trx, err := instance.Issue(auth, newCertificate.ID, newCertificate.Name, newCertificate.Course, newCertificate.Grade, newCertificate.Date)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, trx)
+}
+
+func fetchCertificate(ctx *gin.Context, instance *lib.Cert) {
+	param := ctx.Param("id")
+	opts := bind.CallOpts{}
+
+	result, err := instance.Certificates(&opts, param)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, result)
+}
+
+func getEvents(ctx *gin.Context, contractAddress common.Address, client *ethclient.Client) {
+	latest, _ := client.BlockNumber(context.Background())
+	query := ethereum.FilterQuery{
+		FromBlock: big.NewInt(0),
+		ToBlock:   big.NewInt(int64(latest)),
+		Addresses: []common.Address{
+			contractAddress,
+		},
+	}
+
+	logs, err := client.FilterLogs(context.Background(), query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logIssuedSig := []byte("Issued(string,string,string)")
+	logIssuedSigHash := crypto.Keccak256Hash(logIssuedSig)
+	logIssuedEvents := []types.Log{}
+
+	for _, vLog := range logs {
+		switch vLog.Topics[0].Hex() {
+		case logIssuedSigHash.Hex():
+			logIssuedEvents = append(logIssuedEvents, vLog)
+		}
+	}
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"events": logIssuedEvents})
+}
