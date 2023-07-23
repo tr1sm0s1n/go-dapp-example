@@ -15,9 +15,9 @@
 			},
 			{
 				"indexed": false,
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "id",
-				"type": "uint256"
+				"type": "string"
 			},
 			{
 				"indexed": false,
@@ -32,9 +32,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "",
-				"type": "uint256"
+				"type": "string"
 			}
 		],
 		"name": "Certificates",
@@ -66,9 +66,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "_id",
-				"type": "uint256"
+				"type": "string"
 			},
 			{
 				"internalType": "string",

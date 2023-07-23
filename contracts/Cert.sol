@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 contract Cert {
     address admin;
-    event Issued(string indexed course, uint256 id, string grade);
+    event Issued(string indexed course, string id, string grade);
 
     constructor() {
         admin = msg.sender;
@@ -21,10 +21,10 @@ contract Cert {
         string date;
     }
 
-    mapping(uint256 => Certificate) public Certificates;
+    mapping(string => Certificate) public Certificates;
 
     function issue(
-        uint256 _id,
+        string memory _id,
         string memory _name,
         string memory _course,
         string memory _grade,
