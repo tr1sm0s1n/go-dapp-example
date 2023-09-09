@@ -27,7 +27,7 @@ type Certificate struct {
 }
 
 func main() {
-	contract := "0x68042D342f4722a74b0C54Cb37ef3A7E8A57905d"
+	contract := "0x2Ef0eCfCADd586cD15e025bB3699792aB60243f9"
 	printContract := fmt.Sprintf("Contract: %s", contract)
 	fmt.Println(printContract)
 
@@ -70,7 +70,7 @@ func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *lib.
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, trx)
+	ctx.IndentedJSON(http.StatusCreated, trx)
 }
 
 func fetchCertificate(ctx *gin.Context, instance *lib.Cert) {
