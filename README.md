@@ -4,11 +4,9 @@ DApp example of deploying and interacting with Solidity smart contract using Go.
 
 ## 🛠 Built With
 
-<div align="left">
-<a href="https://go.dev/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/DEMYSTIF/DEMYSTIF/main/assets/icons/go.svg" width="36" height="36" alt="Go" /></a>
-<a href="https://gin-gonic.com/docs/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/DEMYSTIF/DEMYSTIF/main/assets/icons/gin.svg" width="36" height="36" alt="Gin" /></a>
-<a href="https://soliditylang.org/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/DEMYSTIF/DEMYSTIF/main/assets/icons/solidity.svg" width="36" height="36" alt="Solidity" /></a>
-</div>
+![Go](https://img.shields.io/badge/go-2F4F4F?style=for-the-badge&logo=go)
+![Gin](https://img.shields.io/badge/gin-2F4F4F?style=for-the-badge&logo=go)
+![Solidity](https://img.shields.io/badge/solidity-2F4F4F?style=for-the-badge&logo=solidity)
 
 ## ⚙️ Run Locally
 
