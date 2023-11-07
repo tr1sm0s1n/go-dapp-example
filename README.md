@@ -4,16 +4,17 @@ DApp example of deploying and interacting with Solidity smart contract using Go.
 
 ## 🛠 Built With
 
-![Go](https://img.shields.io/badge/go-2F4F4F?style=for-the-badge&logo=go)
-![Gin](https://img.shields.io/badge/gin-2F4F4F?style=for-the-badge&logo=go)
-![Solidity](https://img.shields.io/badge/solidity-2F4F4F?style=for-the-badge&logo=solidity)
+[![Go](https://img.shields.io/badge/go-dodgerblue?style=for-the-badge&logo=go&logoColor=white)](https://go.dev/)
+[![Gin](https://img.shields.io/badge/gin-dodgerblue?style=for-the-badge&logo=go&logoColor=white)](https://gin-gonic.com/)
+[![Solidity](https://img.shields.io/badge/solidity-sienna?style=for-the-badge&logo=solidity&logoColor=white)](https://soliditylang.org/)
+[![Geth](https://img.shields.io/badge/geth-darkslategray?style=for-the-badge&logo=ethereum&logoColor=white)](https://geth.ethereum.org/)
 
 ## ⚙️ Run Locally
 
 Clone the project
 
 ```bash
-git clone https://github.com/DEMYSTIF/go-dapp-example.git
+git clone https://github.com/tr1sm0s1n/go-dapp-example.git
 cd go-dapp-example
 ```
 
