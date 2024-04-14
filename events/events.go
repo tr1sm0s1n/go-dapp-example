@@ -5,20 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/tr1sm0s1n/go-dapp-example/config"
 )
 
 func main() {
-	client, err := ethclient.Dial("ws://127.0.0.1:8545")
-	if err != nil {
-		log.Fatal(err)
-	}
+	config.LoadEnv()
 
-	contractAddress := common.HexToAddress("0x2Ef0eCfCADd586cD15e025bB3699792aB60243f9")
+	client := config.DialClient(true)
+	contractAddress := common.HexToAddress(os.Getenv("CONTRACT_ADDRESS"))
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 	}

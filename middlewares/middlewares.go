@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"log"
 	"math/big"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -12,7 +13,7 @@ import (
 )
 
 func AuthGenerator(client *ethclient.Client) *bind.TransactOpts {
-	privateKey, err := crypto.HexToECDSA("835e618ab0a9ce089fa30e9eafc0bbe88eeaad8920e0a3235e840fd53f21d3be")
+	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -6,9 +6,8 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"os"
 
-	"github.com/DEMYSTIF/go-dapp-example/lib"
-	"github.com/DEMYSTIF/go-dapp-example/middlewares"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -16,6 +15,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
+	"github.com/tr1sm0s1n/go-dapp-example/config"
+	"github.com/tr1sm0s1n/go-dapp-example/lib"
+	"github.com/tr1sm0s1n/go-dapp-example/middlewares"
 )
 
 type Certificate struct {
@@ -27,15 +29,14 @@ type Certificate struct {
 }
 
 func main() {
-	contract := "0x2Ef0eCfCADd586cD15e025bB3699792aB60243f9"
+	config.LoadEnv()
+
+	contract := os.Getenv("CONTRACT_ADDRESS")
 	printContract := fmt.Sprintf("Contract: %s", contract)
 	fmt.Println(printContract)
 
 	contractAddress := common.HexToAddress(contract)
-	client, err := ethclient.Dial("http://127.0.0.1:8545")
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := config.DialClient(false)
 
 	instance, err := lib.NewCert(contractAddress, client)
 	if err != nil {

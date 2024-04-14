@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/DEMYSTIF/go-dapp-example/lib"
-	"github.com/DEMYSTIF/go-dapp-example/middlewares"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/tr1sm0s1n/go-dapp-example/config"
+	"github.com/tr1sm0s1n/go-dapp-example/lib"
+	"github.com/tr1sm0s1n/go-dapp-example/middlewares"
 )
 
 func main() {
-	client, err := ethclient.Dial("http://127.0.0.1:8545")
-	if err != nil {
-		log.Fatal(err)
-	}
+	config.LoadEnv()
 
+	client := config.DialClient(false)
 	contractAddress, trx, err := deployContract(client)
 	if err != nil {
 		log.Fatal(err)
