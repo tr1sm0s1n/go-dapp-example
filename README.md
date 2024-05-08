@@ -77,3 +77,15 @@ Get event logs.
 ```bash
 curl http://localhost:8080/events
 ```
+
+## 📜 License
+
+Click [here](./LICENSE.md).
+
+## 🎗️ Contributing
+
+Click [here](./CONTRIBUTING.md).
+
+## ⚖️ Code of Conduct
+
+Click [here](./CODE_OF_CONDUCT.md).
