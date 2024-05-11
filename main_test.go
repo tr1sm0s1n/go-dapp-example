@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient/simulated"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/stretchr/testify/assert"
 	"github.com/tr1sm0s1n/go-dapp-example/lib"
 )
 
@@ -35,23 +35,37 @@ func TestContract(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to deploy smart contract: %v", err)
 	}
-
-	fmt.Printf("Deploy pending: 0x%x\n", tx.Hash())
+	assert.NotNil(t, tx)
 
 	sim.Commit()
 
-	tx, err = cert.Issue(auth, "101", "Deren", "MBCC", "S", "11-05-2024")
+	id := "101"
+	ct := struct {
+		Name   string
+		Course string
+		Grade  string
+		Date   string
+	}{
+		Name:   "Deren",
+		Course: "MBCC",
+		Grade:  "5",
+		Date:   "2024-05-11",
+	}
+
+	tx, err = cert.Issue(auth, id, ct.Name, ct.Course, ct.Grade, ct.Date)
 	if err != nil {
 		t.Fatalf("Failed to call Issue method: %v", err)
 	}
-	fmt.Printf("State update pending: 0x%x\n", tx.Hash())
+	assert.NotNil(t, tx)
 
 	sim.Commit()
 
-	val, err := cert.Certificates(nil, "101")
+	val, err := cert.Certificates(nil, id)
 	if err != nil {
 		t.Fatalf("Failed to call Certificates method: %v", err)
 	}
 
-	fmt.Printf("Value: %v\n", val)
+	if assert.NotNil(t, val) {
+		assert.EqualValues(t, val, ct)
+	}
 }
