@@ -9,7 +9,6 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -76,9 +75,8 @@ func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *lib.
 
 func fetchCertificate(ctx *gin.Context, instance *lib.Cert) {
 	param := ctx.Param("id")
-	opts := bind.CallOpts{}
 
-	result, err := instance.Certificates(&opts, param)
+	result, err := instance.Certificates(nil, param)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
 		return
