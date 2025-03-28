@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -21,17 +21,13 @@ func TestContract(t *testing.T) {
 	}
 
 	chainID := params.AllDevChainProtocolChanges.ChainID
-
-	auth, err := bind.NewKeyedTransactorWithChainID(key, chainID)
-	if err != nil {
-		t.Fatalf("Failed to make transactor: %v", err)
-	}
+	auth := bind.NewKeyedTransactor(key, chainID)
 
 	sim := simulated.NewBackend(map[common.Address]types.Account{
 		auth.From: {Balance: big.NewInt(9e18)},
 	})
 
-	_, tx, cert, err := lib.DeployCert(auth, sim.Client())
+	ca, tx, err := bind.DeployContract(auth, common.FromHex(lib.CertMetaData.Bin), sim.Client(), nil)
 	if err != nil {
 		t.Fatalf("Failed to deploy smart contract: %v", err)
 	}
@@ -40,19 +36,17 @@ func TestContract(t *testing.T) {
 	sim.Commit()
 
 	id := "101"
-	ct := struct {
-		Name   string
-		Course string
-		Grade  string
-		Date   string
-	}{
+	ct := lib.CertificatesOutput{
 		Name:   "Deren",
 		Course: "MBCC",
-		Grade:  "5",
-		Date:   "2024-05-11",
+		Grade:  "S",
+		Date:   "2025-03-28",
 	}
 
-	tx, err = cert.Issue(auth, id, ct.Name, ct.Course, ct.Grade, ct.Date)
+	cert := lib.NewCert()
+	instance := cert.Instance(sim.Client(), ca)
+
+	tx, err = bind.Transact(instance, auth, cert.PackIssue(id, ct.Name, ct.Course, ct.Grade, ct.Date))
 	if err != nil {
 		t.Fatalf("Failed to call Issue method: %v", err)
 	}
@@ -60,7 +54,7 @@ func TestContract(t *testing.T) {
 
 	sim.Commit()
 
-	val, err := cert.Certificates(nil, id)
+	val, err := bind.Call(instance, nil, cert.PackCertificates(id), cert.UnpackCertificates)
 	if err != nil {
 		t.Fatalf("Failed to call Certificates method: %v", err)
 	}
