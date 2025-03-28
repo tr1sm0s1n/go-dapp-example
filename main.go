@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -27,6 +28,8 @@ type Certificate struct {
 	Date   string `json:"date" binding:"required"`
 }
 
+var cert = lib.NewCert()
+
 func main() {
 	config.LoadEnv()
 
@@ -37,10 +40,7 @@ func main() {
 	contractAddress := common.HexToAddress(contract)
 	client := config.DialClient(false)
 
-	instance, err := lib.NewCert(contractAddress, client)
-	if err != nil {
-		log.Fatal(err)
-	}
+	instance := cert.Instance(client, contractAddress)
 
 	router := gin.Default()
 	router.POST("/issue", func(ctx *gin.Context) {
@@ -55,7 +55,7 @@ func main() {
 	router.Run("localhost:8080")
 }
 
-func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *lib.Cert) {
+func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *bind.BoundContract) {
 	var newCertificate Certificate
 
 	if err := ctx.ShouldBind(&newCertificate); err != nil {
@@ -64,7 +64,13 @@ func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *lib.
 	}
 
 	auth := middlewares.AuthGenerator(client)
-	trx, err := instance.Issue(auth, newCertificate.ID, newCertificate.Name, newCertificate.Course, newCertificate.Grade, newCertificate.Date)
+	trx, err := bind.Transact(instance, auth,
+		cert.PackIssue(newCertificate.ID,
+			newCertificate.Name,
+			newCertificate.Course,
+			newCertificate.Grade,
+			newCertificate.Date),
+	)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
 		return
@@ -73,10 +79,10 @@ func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *lib.
 	ctx.IndentedJSON(http.StatusCreated, trx)
 }
 
-func fetchCertificate(ctx *gin.Context, instance *lib.Cert) {
+func fetchCertificate(ctx *gin.Context, instance *bind.BoundContract) {
 	param := ctx.Param("id")
 
-	result, err := instance.Certificates(nil, param)
+	result, err := bind.Call(instance, nil, cert.PackCertificates(param), cert.UnpackCertificates)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
 		return
