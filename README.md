@@ -27,7 +27,7 @@ go install github.com/ethereum/go-ethereum/cmd/abigen@latest
 Generate Go binding for contract.
 
 ```bash
-abigen --bin lib/Cert.bin --abi lib/Cert.abi --pkg lib --type Cert --out lib/Cert.go
+abigen --v2 --bin lib/Cert.bin --abi lib/Cert.abi --pkg lib --type Cert --out lib/Cert.go
 ```
 
 Run a blockchain simulation on port **8545** (both http & ws). Copy a valid private key (omit '0x') and paste it in **.env**.
@@ -63,13 +63,13 @@ go run ./events/events.go
 Issue a certificate (new terminal).
 
 ```bash
-curl -X POST http://localhost:8080/issue -H "Content-Type: application/json" -d '{"id": "test-01", "name": "Shepard", "course": "ETH-GO", "grade": "A", "date": "22-11-23"}'
+curl -X POST http://localhost:8080/issue -H "Content-Type: application/json" -d '{"id": "N7", "name": "Shepard", "course": "ETH-GO", "grade": "A", "date": "28-03-25"}'
 ```
 
 Fetch a certificate.
 
 ```bash
-curl http://localhost:8080/fetch/test-01
+curl http://localhost:8080/fetch/N7
 ```
 
 Get event logs.
