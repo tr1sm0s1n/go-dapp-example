@@ -1,9 +1,11 @@
 package main_test
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -53,6 +55,24 @@ func TestContract(t *testing.T) {
 	assert.NotNil(t, tx)
 
 	sim.Commit()
+
+	q := ethereum.FilterQuery{
+		Addresses: []common.Address{ca},
+	}
+
+	logs, err := sim.Client().FilterLogs(context.Background(), q)
+	if err != nil {
+		t.Fatalf("Failed to query logs: %v", err)
+	}
+
+	event, err := cert.UnpackIssuedEvent(&logs[0])
+	if err != nil {
+		t.Fatalf("Failed to unpack event: %v", err)
+	}
+
+	assert.Equal(t, event.Course, crypto.Keccak256Hash([]byte(ct.Course)))
+	assert.Equal(t, event.Id, id)
+	assert.Equal(t, event.Grade, ct.Grade)
 
 	val, err := bind.Call(instance, nil, cert.PackCertificates(id), cert.UnpackCertificates)
 	if err != nil {
