@@ -32,8 +32,6 @@ type Certificate struct {
 var cert = lib.NewCert()
 
 func main() {
-	config.LoadEnv()
-
 	contract := os.Getenv("CONTRACT_ADDRESS")
 	printContract := fmt.Sprintf("Contract: %s", contract)
 	fmt.Println(printContract)

@@ -15,8 +15,6 @@ import (
 )
 
 func main() {
-	config.LoadEnv()
-
 	client := config.DialClient(false)
 	contractAddress, trx, err := deployContract(client)
 	if err != nil {

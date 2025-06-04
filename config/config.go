@@ -21,7 +21,7 @@ func DialClient(ws bool) *ethclient.Client {
 	return client
 }
 
-func LoadEnv() {
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")

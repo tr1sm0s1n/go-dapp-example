@@ -15,8 +15,6 @@ import (
 )
 
 func main() {
-	config.LoadEnv()
-
 	client := config.DialClient(true)
 	contractAddress := common.HexToAddress(os.Getenv("CONTRACT_ADDRESS"))
 	query := ethereum.FilterQuery{
