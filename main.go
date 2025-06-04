@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/big"
 	"net/http"
 	"os"
@@ -12,8 +11,6 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
 	"github.com/tr1sm0s1n/go-dapp-example/config"
@@ -107,19 +104,19 @@ func getEvents(ctx *gin.Context, contractAddress common.Address, client *ethclie
 
 	logs, err := client.FilterLogs(context.Background(), query)
 	if err != nil {
-		log.Fatal(err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
 	}
 
-	logIssuedSig := []byte("Issued(string,string,string)")
-	logIssuedSigHash := crypto.Keccak256Hash(logIssuedSig)
-	logIssuedEvents := []types.Log{}
-
-	for _, vLog := range logs {
-		switch vLog.Topics[0].Hex() {
-		case logIssuedSigHash.Hex():
-			logIssuedEvents = append(logIssuedEvents, vLog)
+	var events []lib.CertIssued
+	for _, l := range logs {
+		e, err := cert.UnpackIssuedEvent(&l)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
 		}
+		events = append(events, *e)
 	}
 
-	ctx.IndentedJSON(http.StatusOK, gin.H{"events": logIssuedEvents})
+	ctx.IndentedJSON(http.StatusOK, gin.H{"events": events})
 }
