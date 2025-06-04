@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
@@ -21,7 +22,7 @@ import (
 )
 
 type Certificate struct {
-	ID     string `json:"id" binding:"required"`
+	ID     int64  `json:"id" binding:"required"`
 	Name   string `json:"name" binding:"required"`
 	Course string `json:"course" binding:"required"`
 	Grade  string `json:"grade" binding:"required"`
@@ -59,20 +60,20 @@ func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *bind
 	var newCertificate Certificate
 
 	if err := ctx.ShouldBind(&newCertificate); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	auth := middlewares.AuthGenerator(client)
 	trx, err := bind.Transact(instance, auth,
-		cert.PackIssue(newCertificate.ID,
+		cert.PackIssue(big.NewInt(newCertificate.ID),
 			newCertificate.Name,
 			newCertificate.Course,
 			newCertificate.Grade,
 			newCertificate.Date),
 	)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -81,10 +82,15 @@ func issueCertificate(ctx *gin.Context, client *ethclient.Client, instance *bind
 
 func fetchCertificate(ctx *gin.Context, instance *bind.BoundContract) {
 	param := ctx.Param("id")
-
-	result, err := bind.Call(instance, nil, cert.PackCertificates(param), cert.UnpackCertificates)
+	id, err := strconv.ParseInt(param, 10, 64)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	result, err := bind.Call(instance, nil, cert.PackCertificates(big.NewInt(id)), cert.UnpackCertificates)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 

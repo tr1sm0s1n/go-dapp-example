@@ -37,7 +37,7 @@ func TestContract(t *testing.T) {
 
 	sim.Commit()
 
-	id := "101"
+	id := big.NewInt(14)
 	ct := lib.CertificatesOutput{
 		Name:   "Deren",
 		Course: "MBCC",
