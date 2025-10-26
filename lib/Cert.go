@@ -52,7 +52,8 @@ func (c *Cert) Instance(backend bind.ContractBackend, addr common.Address) *bind
 }
 
 // PackCertificates is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x9622c836.
+// the contract method with ID 0x9622c836.  This method will panic if any
+// invalid/nil inputs are passed.
 //
 // Solidity: function Certificates(uint256 ) view returns(string name, string course, string grade, string date)
 func (cert *Cert) PackCertificates(arg0 *big.Int) []byte {
@@ -61,6 +62,15 @@ func (cert *Cert) PackCertificates(arg0 *big.Int) []byte {
 		panic(err)
 	}
 	return enc
+}
+
+// TryPackCertificates is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x9622c836.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function Certificates(uint256 ) view returns(string name, string course, string grade, string date)
+func (cert *Cert) TryPackCertificates(arg0 *big.Int) ([]byte, error) {
+	return cert.abi.Pack("Certificates", arg0)
 }
 
 // CertificatesOutput serves as a container for the return parameters of contract
@@ -86,12 +96,12 @@ func (cert *Cert) UnpackCertificates(data []byte) (CertificatesOutput, error) {
 	outstruct.Course = *abi.ConvertType(out[1], new(string)).(*string)
 	outstruct.Grade = *abi.ConvertType(out[2], new(string)).(*string)
 	outstruct.Date = *abi.ConvertType(out[3], new(string)).(*string)
-	return *outstruct, err
-
+	return *outstruct, nil
 }
 
 // PackIssue is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0xd1e7be26.
+// the contract method with ID 0xd1e7be26.  This method will panic if any
+// invalid/nil inputs are passed.
 //
 // Solidity: function issue(uint256 _id, string _name, string _course, string _grade, string _date) returns()
 func (cert *Cert) PackIssue(id *big.Int, name string, course string, grade string, date string) []byte {
@@ -100,6 +110,15 @@ func (cert *Cert) PackIssue(id *big.Int, name string, course string, grade strin
 		panic(err)
 	}
 	return enc
+}
+
+// TryPackIssue is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xd1e7be26.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function issue(uint256 _id, string _name, string _course, string _grade, string _date) returns()
+func (cert *Cert) TryPackIssue(id *big.Int, name string, course string, grade string, date string) ([]byte, error) {
+	return cert.abi.Pack("issue", id, name, course, grade, date)
 }
 
 // CertIssued represents a Issued event raised by the Cert contract.
@@ -123,7 +142,7 @@ func (CertIssued) ContractEventName() string {
 // Solidity: event Issued(string indexed course, uint256 id, string grade)
 func (cert *Cert) UnpackIssuedEvent(log *types.Log) (*CertIssued, error) {
 	event := "Issued"
-	if log.Topics[0] != cert.abi.Events[event].ID {
+	if len(log.Topics) == 0 || log.Topics[0] != cert.abi.Events[event].ID {
 		return nil, errors.New("event signature mismatch")
 	}
 	out := new(CertIssued)
