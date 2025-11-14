@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/joho/godotenv"
 )
 
 func DialClient(ws bool) *ethclient.Client {
@@ -19,11 +18,4 @@ func DialClient(ws bool) *ethclient.Client {
 	}
 
 	return client
-}
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 }
