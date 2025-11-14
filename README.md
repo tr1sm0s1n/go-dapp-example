@@ -30,10 +30,10 @@ Generate Go binding for contract.
 abigen --v2 --bin lib/Cert.bin --abi lib/Cert.json --pkg lib --type Cert --out lib/Cert.go
 ```
 
-Run a blockchain simulation on port **8545** (both http & ws). Copy a valid private key (omit '0x') and paste it in **.env**.
+Run a blockchain simulation on port **8545** (both http & ws). Copy a valid private key (omit '0x') and export it.
 
 ```bash
-PRIVATE_KEY=<private-key>
+export PRIVATE_KEY=<private-key>
 ```
 
 Deploy the contract.
@@ -42,10 +42,10 @@ Deploy the contract.
 go run ./cmd/deploy.go
 ```
 
-Copy the contract address from the terminal and paste it in **.env**.
+Copy the contract address from the terminal and export it.
 
 ```bash
-CONTRACT_ADDRESS=<contract-address>
+export CONTRACT_ADDRESS=<contract-address>
 ```
 
 Start the application.
